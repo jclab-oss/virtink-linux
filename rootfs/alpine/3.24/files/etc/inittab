@@ -1,0 +1,19 @@
+# /etc/inittab
+
+::sysinit:/sbin/openrc sysinit
+::sysinit:/sbin/openrc boot
+::wait:/sbin/openrc default
+
+# The VM has no virtual terminals, so put a getty on each console of Cloud
+# Hypervisor instead: the serial port (ttyS0 on x86_64, ttyAMA0 on aarch64)
+# and the virtio console (hvc0). The tty field is left empty, since init fails
+# to open the consoles that the VM doesn't have.
+::respawn:/usr/local/sbin/console-getty ttyS0
+::respawn:/usr/local/sbin/console-getty ttyAMA0
+::respawn:/usr/local/sbin/console-getty hvc0
+
+# Stuff to do for the 3-finger salute
+::ctrlaltdel:/sbin/reboot
+
+# Stuff to do before rebooting
+::shutdown:/sbin/openrc shutdown

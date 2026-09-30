@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs a getty on the console $1, or idles if the VM doesn't have it, so that
+# init doesn't keep respawning it. Which consoles exist depends on the
+# architecture and the VM spec.
+if [ ! -c "/dev/$1" ]; then
+	exec sleep 2147483647
+fi
+exec /sbin/getty -L 115200 "$1" vt100

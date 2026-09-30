@@ -1,0 +1,7 @@
+# Replaced by cloud-init when the VM has a cloudInit volume.
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
