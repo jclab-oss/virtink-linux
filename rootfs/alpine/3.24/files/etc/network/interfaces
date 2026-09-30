@@ -5,3 +5,6 @@ iface lo inet loopback
 
 auto eth0
 iface eth0 inet dhcp
+	# Request classless static routes (option 121), which virtink's DHCP
+	# server sends the routes of the Pod network as.
+	udhcpc-opts -O staticroutes

@@ -1,0 +1,21 @@
+#!/bin/sh
+# Adds the on-link routes of the classless static routes (option 121), which
+# have the gateway 0.0.0.0, such as virtink's route to the gateway of Calico,
+# 169.254.1.1/32. The default script skips them, although RFC 3442 defines
+# them as on-link, so the routes through their gateways would fail.
+
+[ -n "$staticroutes" ] || exit 0
+
+[ -f /etc/udhcpc/udhcpc.conf ] && . /etc/udhcpc/udhcpc.conf
+for i in $NO_GATEWAY; do
+	[ "$i" = "$interface" ] && exit 0
+done
+
+ip -4 link set dev "$interface" up
+set -- $staticroutes
+while [ -n "$1" ] && [ -n "$2" ]; do
+	if [ "$2" = "0.0.0.0" ]; then
+		ip -4 route replace "$1" dev "$interface"
+	fi
+	shift 2
+done

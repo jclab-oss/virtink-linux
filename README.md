@@ -143,6 +143,14 @@ A minimal Alpine Linux with OpenRC, OpenSSH and
 reads the `cloudInit` volume as a NoCloud data source. Without a `cloudInit`
 volume, `eth0` is configured with DHCP.
 
+udhcpc requests the classless static routes (DHCP option 121) that virtink's
+DHCP server sends the routes of the Pod network as, both for the default
+`eth0` and for the interfaces tiny-cloud sets up from a network config. The
+[`onlink-routes`](rootfs/alpine/3.24/files/etc/udhcpc/pre-bound/onlink-routes)
+hook adds their on-link routes (with the gateway `0.0.0.0`), which the default
+udhcpc script skips, so that gateways outside the VM's subnet, such as
+Calico's `169.254.1.1`, work.
+
 tiny-cloud, unlike cloud-init, is a few shell scripts, so it boots faster and
 needs no Python, but supports only a subset of cloud-config: `user`, `users`,
 `groups`, `ssh_authorized_keys`, `bootcmd`, `runcmd`, `write_files`,
