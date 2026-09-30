@@ -53,7 +53,16 @@ spec:
 ```
 
 The Alpine rootfs has no password for root. Log in as `alpine`, the default
-user of cloud-init, which can use `doas` and `sudo`.
+user, which can use `doas` and `sudo`.
+
+### Boot time
+
+Most of the kernel's boot time goes to printing its log on the serial port,
+which takes a VM exit per character. Adding `quiet` (or `loglevel=4`) to the
+`cmdline` cuts it by seconds, while errors are still printed. `console=hvc0`
+is faster still, since the virtio console isn't written a character at a
+time, but virtink's console access reads the serial port, which would then
+show nothing until the login prompt.
 
 ## Layout
 
@@ -129,9 +138,18 @@ which is in the Cloud Hypervisor kernel fork. virtink doesn't use it.
 
 ### Alpine Linux
 
-A minimal Alpine Linux with OpenRC, OpenSSH and cloud-init, which reads the
-`cloudInit` volume as a NoCloud data source. Without a `cloudInit` volume,
-`eth0` is configured with DHCP. A getty runs on the serial port (`ttyS0` or
+A minimal Alpine Linux with OpenRC, OpenSSH and
+[tiny-cloud](https://gitlab.alpinelinux.org/alpine/cloud/tiny-cloud), which
+reads the `cloudInit` volume as a NoCloud data source. Without a `cloudInit`
+volume, `eth0` is configured with DHCP.
+
+tiny-cloud, unlike cloud-init, is a few shell scripts, so it boots faster and
+needs no Python, but supports only a subset of cloud-config: `user`, `users`,
+`groups`, `ssh_authorized_keys`, `bootcmd`, `runcmd`, `write_files`,
+`packages`, `package_update`, `package_upgrade` and `ntp`.
+[`tiny-cloud.conf`](rootfs/alpine/3.24/files/etc/tiny-cloud.conf) adds the
+top-level `password` and `ssh_pwauth` that the virtink examples use. Other
+keys, such as `chpasswd`, are ignored, and the password never expires. A getty runs on the serial port (`ttyS0` or
 `ttyAMA0`) and the virtio console (`hvc0`), and busybox acpid shuts the VM down
 on the power button.
 

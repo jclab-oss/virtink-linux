@@ -1,4 +1,4 @@
-# Replaced by cloud-init when the VM has a cloudInit volume.
+# Replaced by tiny-cloud if the cloudInit volume of the VM has network config.
 
 auto lo
 iface lo inet loopback
